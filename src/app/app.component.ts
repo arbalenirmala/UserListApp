@@ -4,7 +4,6 @@ import { RouterOutlet } from '@angular/router';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
-import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -16,7 +15,6 @@ import { FormsModule } from '@angular/forms';
     MatPaginatorModule,
     MatTableModule,
     MatSortModule,
-    HttpClientModule,
     FormsModule,
   ],
   templateUrl: './app.component.html',
