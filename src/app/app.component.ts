@@ -7,18 +7,17 @@ import { MatSortModule } from '@angular/material/sort';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterOutlet,
-    MatPaginatorModule,
-    MatTableModule,
-    MatSortModule,
-    FormsModule,
-  ],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.css',
+    selector: 'app-root',
+    imports: [
+        CommonModule,
+        RouterOutlet,
+        MatPaginatorModule,
+        MatTableModule,
+        MatSortModule,
+        FormsModule,
+    ],
+    templateUrl: './app.component.html',
+    styleUrl: './app.component.css'
 })
 export class AppComponent {
   title = 'UserListApp';

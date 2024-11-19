@@ -7,11 +7,10 @@ import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 
 @Component({
-  selector: 'app-user-list',
-  standalone: true,
-  imports: [FormsModule, MatPaginator, MatSortModule, MatTableModule],
-  templateUrl: './user-list.component.html',
-  styleUrl: './user-list.component.css',
+    selector: 'app-user-list',
+    imports: [FormsModule, MatPaginator, MatSortModule, MatTableModule],
+    templateUrl: './user-list.component.html',
+    styleUrl: './user-list.component.css'
 })
 export class UserListComponent implements OnInit {
   users: any[] = [];
