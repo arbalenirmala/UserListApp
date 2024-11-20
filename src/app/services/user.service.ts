@@ -7,7 +7,7 @@ import { map } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class UserService {
-  private apiUrl = 'https://dummyjson.com/users';
+  private apiUrl = 'https://dummyjson.com/users?limit=0';
 
   constructor(private http: HttpClient) {}
 
@@ -20,7 +20,7 @@ export class UserService {
       .set('limit', limit.toString())
       .set('skip', ((page - 1) * limit).toString());
 
-    return this.http.get<any>(this.apiUrl, { params }).pipe(
+    return this.http.get<any>(this.apiUrl).pipe(
       map((data) => {
         if (searchTerm) {
           const filteredUsers = data.users.filter(
@@ -33,5 +33,9 @@ export class UserService {
         return data;
       })
     );
+  }
+
+  getAllUsers(): Observable<any> {
+    return this.http.get<any>(this.apiUrl); // Adjust type as needed
   }
 }

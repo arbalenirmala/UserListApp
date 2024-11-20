@@ -1,10 +1,9 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild ,ChangeDetectorRef, AfterViewInit } from '@angular/core';
 import { UserService } from '../../services/user.service';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSortModule, MatSort } from '@angular/material/sort';
-
 import { FormsModule } from '@angular/forms';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 
 @Component({
     selector: 'app-user-list',
@@ -12,7 +11,7 @@ import { MatTableModule } from '@angular/material/table';
     templateUrl: './user-list.component.html',
     styleUrl: './user-list.component.css'
 })
-export class UserListComponent implements OnInit {
+export class UserListComponent implements OnInit, AfterViewInit {
   users: any[] = [];
   filteredUsers: any[] = [];
   displayedColumns: string[] = [
@@ -22,22 +21,34 @@ export class UserListComponent implements OnInit {
     'age',
     'address',
   ];
+
   searchTerm: string = '';
-  totalUsers: number = 0;
+  totalUsers: number =0;
   pageSize: number = 10;
-  currentPage: number = 1;
+  currentPage: number = 0;
+  visibleUsers: any[] = []; // Explicitly typed
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+  dataSource = new MatTableDataSource<any>();
+  @ViewChild(MatPaginator) paginator: MatPaginator | null = null;
 
-  constructor(private userService: UserService) {}
+  constructor(private userService: UserService ,private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
-    this.getUsers();
+    this.getAllUser();
   }
 
   ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
     this.sort.sortChange.subscribe(() => this.applySorting());
+  }
+
+  getAllUser(){
+    this.userService.getAllUsers().subscribe((data) =>{
+        this.dataSource.data = data.users; // Assign the full data set
+        this.visibleUsers = [...this.users];
+        this.totalUsers = data.total;
+    })
   }
 
   getUsers(): void {
@@ -52,35 +63,42 @@ export class UserListComponent implements OnInit {
 
   onSearch(): void {
     this.currentPage = 1;
-    this.getUsers();
+    //this.getUsers();
+    this.dataSource.filter = this.searchTerm.trim().toLowerCase(); // Apply filter
+
   }
 
   onPageChange(event: PageEvent): void {
-    this.currentPage = event.pageIndex + 1;
     this.pageSize = event.pageSize;
-    this.getUsers();
+    this.currentPage = event.pageIndex;
+    this.updateVisibleUsers();
+    console.log('Visible Users:', this.visibleUsers); // Log the updated visible users
+  }
+
+  private updateVisibleUsers(): void {
+    const startIndex = this.currentPage * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.visibleUsers = this.users.slice(startIndex, endIndex);
+    this.cdr.markForCheck();
+
   }
 
   applySorting(): void {
-    const sortField = this.sort.active;
-    const sortDirection = this.sort.direction;
+    const active = this.sort.active; // The column being sorted
+    const direction = this.sort.direction; // The sort direction (asc/desc)
 
-    this.filteredUsers.sort((a, b) => {
-      let valueA = a[sortField];
-      let valueB = b[sortField];
+    if (!active || direction === '') {
+      // No sorting
+      return;
+    }
 
-      if (typeof valueA === 'string' && typeof valueB === 'string') {
-        return sortDirection === 'asc'
-          ? valueA.localeCompare(valueB)
-          : valueB.localeCompare(valueA);
-      }
+    this.dataSource.data = this.dataSource.data.sort((a: any, b: any) => {
+      const valueA = a[active];
+      const valueB = b[active];
 
-      if (typeof valueA === 'number' && typeof valueB === 'number') {
-        return sortDirection === 'asc' ? valueA - valueB : valueB - valueA;
-      }
-
-      return 0;
+      // Compare values based on the sort direction
+      const comparison = valueA < valueB ? -1 : valueA > valueB ? 1 : 0;
+      return direction === 'asc' ? comparison : -comparison;
     });
-    this.filteredUsers = [...this.filteredUsers];
   }
 }
